@@ -20,7 +20,7 @@ export const Skills = () => {
           }
           {
             fetchRequestState === requestStates.success && (
-              sortedLanguageList().map((item, index) => (
+              sortedLanguageList.map((item, index) => (
                 <div className="skill-item" key={index}>
                   <p className="description">
                     <strong>{item.language}</strong>
