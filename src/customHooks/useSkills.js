@@ -1,6 +1,5 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useMemo } from 'react';
 import axios from 'axios';
-
 import { skillReducer, initialState, actionTypes } from '../reducers/skillReducer';
 
 export const useSkills = () => {
@@ -10,8 +9,8 @@ export const useSkills = () => {
     dispatch({ type: actionTypes.fetch });
     axios.get('https://api.github.com/users/USER_NAME/repos')
       .then((response) => {
-        const languageList = response.data.map(res => res.language)
-        const countedLanguageList = generateLanguageCountObj(languageList)
+        const languageList = response.data.map(res => res.language);
+        const countedLanguageList = generateLanguageCountObj(languageList);
         dispatch({ type: actionTypes.success, payload: { languageList: countedLanguageList } });
       })
       .catch(() => {
@@ -21,24 +20,21 @@ export const useSkills = () => {
 
   const generateLanguageCountObj = (allLanguageList) => {
     const notNullLanguageList = allLanguageList.filter(language => language != null);
-    const uniqueLanguageList = [...new Set(notNullLanguageList)]
-
-    return uniqueLanguageList.map(item => {
-      return {
-        language: item,
-        count: allLanguageList.filter(language => language === item).length
-      }
-    });
+    const uniqueLanguageList = [...new Set(notNullLanguageList)];
+    return uniqueLanguageList.map(item => ({
+      language: item,
+      count: allLanguageList.filter(language => language === item).length
+    }));
   };
 
   const converseCountToPercentage = (count) => {
-    if (count > 10) { return 100; }
+    if (count > 10) return 100;
     return count * 10;
   };
 
-  const sortedLanguageList = () => (
-    state.languageList.sort((firstLang, nextLang) => nextLang.count - firstLang.count)
-  )
+  const sortedLanguageList = useMemo(() => {
+    return [...state.languageList].sort((firstLang, nextLang) => nextLang.count - firstLang.count);
+  }, [state.languageList]);
 
   return [sortedLanguageList, state.requestState, converseCountToPercentage];
-}
+};
